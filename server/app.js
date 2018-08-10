@@ -3,14 +3,13 @@ const graphqlHTTP = require('express-graphql');
 const schema = require('./graphql/schema/schema');
 const mongoose = require('mongoose');
 const keys = require('./config/keys');
-const passport = require('passport');
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
+require('./mongoose/models/User');
+require('./services/passport');
 
 const app = express();
+require('./routes/authRoutes')(app);
 
-passport.use(new GoogleStrategy());
-
-mongoose.connect(`mongodb://${keys.db_user}:${keys.db_password}@ds217092.mlab.com:17092/portfolio-dev`);
+mongoose.connect(keys.mongoURI);
 
 mongoose.connection.once('open', () => {
 	console.log('connected to db');
@@ -24,6 +23,6 @@ app.use(
 	})
 );
 
-app.listen(4000, () => {
-	console.log('now listening to port 4000');
+app.listen(5000, () => {
+	console.log('now listening to port 5000');
 });
