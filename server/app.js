@@ -2,18 +2,25 @@ const express = require('express');
 const graphqlHTTP = require('express-graphql');
 const schema = require('./graphql/schema/schema');
 const mongoose = require('mongoose');
+const cookieSession = require('cookie-session');
+const passport = require('passport');
 const keys = require('./config/keys');
 require('./mongoose/models/User');
 require('./services/passport');
 
-const app = express();
-require('./routes/authRoutes')(app);
-
 mongoose.connect(keys.mongoURI);
 
-mongoose.connection.once('open', () => {
-	console.log('connected to db');
-});
+const app = express();
+
+app.use(
+	cookieSession({
+		maxAge: 30 * 24 * 60 * 60 * 1000,
+		keys: [ keys.cookieKey ]
+	})
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use(
 	'/graphql',
@@ -22,6 +29,8 @@ app.use(
 		graphiql: true
 	})
 );
+
+require('./routes/authRoutes')(app);
 
 app.listen(5000, () => {
 	console.log('now listening to port 5000');
