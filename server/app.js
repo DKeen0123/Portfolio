@@ -9,6 +9,9 @@ require('./mongoose/models/User');
 require('./services/passport');
 
 mongoose.connect(keys.mongoURI);
+mongoose.connection.once('open', () => {
+	console.log('connected to the db');
+});
 
 const app = express();
 
@@ -32,6 +35,4 @@ app.use(
 
 require('./routes/authRoutes')(app);
 
-app.listen(5000, () => {
-	console.log('now listening to port 5000');
-});
+module.exports = app;
